@@ -30,22 +30,31 @@ Public Class ClientPage
                     Exit Sub
                 End Try
 
-                ' Query to fetch client ID
-                Dim query As String = "SELECT ClientID FROM clients WHERE FullName = @FullName  LIMIT 1"
-
+                ' Query to fetch all clients with the given name
+                Dim query As String = "SELECT ClientID, FullName FROM clients WHERE FullName = @FullName"
                 Using cmd As New MySqlCommand(query, conn)
                     cmd.Parameters.AddWithValue("@FullName", clientName)
 
                     Using reader As MySqlDataReader = cmd.ExecuteReader()
-                        If reader.Read() Then
-                            selectedClientID = Convert.ToInt32(reader("ClientID"))
-                            reader.Close()
-                            ' Open RecordsPage and pass ClientID
-                            Dim recordsPage As New RecordsPage(selectedClientID)
-                            recordsPage.Show()
-                            Me.Hide()
-                        Else
+                        Dim clients As New List(Of Tuple(Of Integer, String))()
+
+                        While reader.Read()
+                            clients.Add(New Tuple(Of Integer, String)(Convert.ToInt32(reader("ClientID")), reader("FullName").ToString()))
+                        End While
+
+                        If clients.Count = 0 Then
                             MessageBox.Show("Client not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        ElseIf clients.Count = 1 Then
+                            ' If only one client is found, proceed directly
+                            selectedClientID = clients(0).Item1
+                            OpenRecordsPage()
+                        Else
+                            ' If multiple clients are found, show selection dialog
+                            Dim selectionForm As New ClientSelectionPage(clients)
+                            If selectionForm.ShowDialog() = DialogResult.OK Then
+                                selectedClientID = selectionForm.SelectedClientID
+                                OpenRecordsPage()
+                            End If
                         End If
                     End Using
                 End Using
@@ -56,6 +65,12 @@ Public Class ClientPage
         Catch ex As Exception
             MessageBox.Show("Unexpected Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
+    End Sub
+
+    Private Sub OpenRecordsPage()
+        Dim recordsPage As New RecordsPage(selectedClientID)
+        recordsPage.Show()
+        Me.Hide()
     End Sub
 
     Private Sub BtnBack_Click(sender As Object, e As EventArgs) Handles BtnBack.Click

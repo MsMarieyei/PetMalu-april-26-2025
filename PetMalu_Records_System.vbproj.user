@@ -7,6 +7,9 @@
     <Compile Update="ClientPage.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="ClientSelectionPage.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="HistoryPage.vb">
       <SubType>Form</SubType>
     </Compile>

@@ -254,12 +254,11 @@ Public Class RecordsPage
     End Sub
 
     Private Sub BtnBack_Click(sender As Object, e As EventArgs) Handles BtnBack.Click
-        Dim dashboardPage As New DashboardPage()
-        dashboardPage.Show()
+        Dim ClientPage As New ClientPage()
+        ClientPage.Show()
         Me.Hide()
     End Sub
 
-    ' Add this after BtnBack definition (line 236)
     Private Sub BtnInsert_Click(sender As Object, e As EventArgs) Handles BtnInsert.Click
         Dim petRegistrationForm As New PetRegistrationPage(selectedClientID)
         petRegistrationForm.ShowDialog()
